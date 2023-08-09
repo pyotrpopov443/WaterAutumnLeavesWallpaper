@@ -1,6 +1,6 @@
 package pyotr.popov443.glviewwallpaper
 
-import android.R.attr
+import android.content.Context
 import android.opengl.GLES30.*
 import android.opengl.GLSurfaceView
 import android.service.wallpaper.WallpaperService
@@ -95,6 +95,11 @@ class WaterWallpaperService : WallpaperService() {
         private var tread = 0
         private var twrite = 1
 
+        private var delta = 0.7f
+        private var iBufferDeltaLocation = 0
+
+        private var waterSizeCoefficient = 0.5f
+        private var waterSizeCoefficientSquared = waterSizeCoefficient * waterSizeCoefficient
         private var screenWidth = 0
         private var screenHeight = 0
 
@@ -194,6 +199,14 @@ class WaterWallpaperService : WallpaperService() {
 
             frame = 0
             iMouses = List(10) { floatArrayOf(0f, 0f, 0f) }
+            delta = getSavedWaterSpeed()
+        }
+
+        private fun getSavedWaterSpeed(): Float
+        {
+            val shaderPreferences = context.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return 0.7f
+
+            return shaderPreferences.getFloat(getString(R.string.saved_speed), 0.7f)
         }
 
         override fun onSurfaceChanged(arg0: GL10?, width: Int, height: Int) {
@@ -204,7 +217,7 @@ class WaterWallpaperService : WallpaperService() {
             glUseProgram(programId)
             glUniform2f(iResolutionLocation, screenWidth.toFloat(), screenHeight.toFloat())
             glUseProgram(bufferProgramId)
-            glUniform2f(iBufferResolutionLocation, screenWidth.toFloat(), screenHeight.toFloat())
+            glUniform2f(iBufferResolutionLocation, screenWidth * waterSizeCoefficient, screenHeight * waterSizeCoefficient)
 
             for (i in framebuffers.indices)
             {
@@ -214,8 +227,8 @@ class WaterWallpaperService : WallpaperService() {
                     GL_TEXTURE_2D,
                     0,
                     GL_RGBA16F,
-                    screenWidth,
-                    screenHeight,
+                    (screenWidth * waterSizeCoefficient).toInt(),
+                    (screenHeight * waterSizeCoefficient).toInt(),
                     0,
                     GL_RGBA,
                     GL_FLOAT,
@@ -333,10 +346,10 @@ class WaterWallpaperService : WallpaperService() {
 
             iBufferTouchSizeLocation = glGetUniformLocation(bufferProgramId, "iMouseSize")
             iBufferResolutionLocation = glGetUniformLocation(bufferProgramId, "iResolution")
+            iBufferDeltaLocation = glGetUniformLocation(bufferProgramId, "delta")
         }
 
         override fun onDrawFrame(arg0: GL10?) {
-            update()
             update()
             render()
         }
@@ -362,7 +375,7 @@ class WaterWallpaperService : WallpaperService() {
                 GL_TEXTURE6,
                 GL_TEXTURE7,
                 GL_TEXTURE8,
-                GL_TEXTURE9
+                GL_TEXTURE9,
             )
             for (i in 0 until leavesCount)
             {
@@ -392,10 +405,14 @@ class WaterWallpaperService : WallpaperService() {
 
             for (i in 0 until mouseCount)
             {
-                glUniform3f(iBufferMouseLocations[i], iMouses[i][0], iMouses[i][1], iMouses[i][2])
+                val x = iMouses[i][0] * waterSizeCoefficientSquared
+                val y = iMouses[i][1] * waterSizeCoefficientSquared
+                val pressed = iMouses[i][2]
+                glUniform3f(iBufferMouseLocations[i], x, y, pressed)
             }
 
-            glUniform1f(iBufferTouchSizeLocation, min(screenWidth, screenHeight).toFloat() / 26f)
+            glUniform1f(iBufferTouchSizeLocation, (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficientSquared)
+            glUniform1f(iBufferDeltaLocation, delta)
 
             drawQuad(aBufferPositionLocation)
 

@@ -15,7 +15,7 @@ uniform vec2 iResolution;
 uniform int iFrame;
 uniform sampler2D iChannel0;
 
-const float delta = 1.4;
+uniform float delta;
 
 vec4 encode(vec4 vec)
 {

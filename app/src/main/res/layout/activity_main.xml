@@ -33,4 +33,46 @@
         android:src="@drawable/leaf2"
         android:contentDescription="@string/app_name" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="20dp"
+        app:layout_constraintTop_toBottomOf="@id/setWallpaperButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:text="@string/water_speed"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:textStyle="bold"/>
+
+        <SeekBar
+            android:id="@+id/waterSpeedSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="10dp"
+            android:max="7"
+            android:thumbTint="#ffffff"
+            android:progressTint="#ffffff"
+            android:progressBackgroundTint="#ffffff"/>
+
+        <TextView
+            android:id="@+id/waterSpeedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

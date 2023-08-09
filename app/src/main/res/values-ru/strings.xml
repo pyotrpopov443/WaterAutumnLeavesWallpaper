@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Вода Осенние Листья</string>
+    <string name="wallpaper_description">Опавшие листья на берегу пруда: Вибрации дзен</string>
+    <string name="my_prefs">my_prefs</string>
+    <string name="set_wallpaper">Установить обои</string>
+    <string name="water_speed">Скорость воды</string>
+    <string name="saved_speed">saved_speed</string>
+</resources>

@@ -129,7 +129,7 @@ vec4 leaf(vec4 color, vec2 center, vec2 size, sampler2D tex, float angle)
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec4 data = blur(iChannel0, gl_FragCoord.xy);
+    vec4 data = blur(iChannel0, gl_FragCoord.xy / 2.0);
 
     gl_FragColor = texture2D(puddle, uv + 0.2 * data.zw);
     vec3 normal = normalize(vec3(-data.z, 0.2, -data.w));
