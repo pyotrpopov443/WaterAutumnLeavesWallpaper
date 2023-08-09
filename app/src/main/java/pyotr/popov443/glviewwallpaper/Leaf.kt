@@ -21,7 +21,7 @@ class Leaf(private var texturesCount: Int) {
     private var spinSpeed = 0f
     private var scale = 1f
 
-    var created = false
+    private var created = false
 
     fun update(screenWidth: Float, screenHeight: Float)
     {
@@ -105,13 +105,13 @@ class Leaf(private var texturesCount: Int) {
             xSpeed = -2f
         }
 
-        if (ySpeed > 1f)
+        if (ySpeed > 2f)
         {
-            ySpeed = 1f
+            ySpeed = 2f
         }
-        if (ySpeed < -1f)
+        if (ySpeed < -2f)
         {
-            ySpeed = -1f
+            ySpeed = -2f
         }
     }
 

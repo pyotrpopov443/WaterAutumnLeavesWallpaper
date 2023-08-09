@@ -40,6 +40,11 @@ void main()
     // x - right. y - left. z - up. w - down
     vec4 p = decode(vec4(texture2D(iChannel0, uv + dx).x, texture2D(iChannel0, uv - dx).x, texture2D(iChannel0, uv + dy).x, texture2D(iChannel0, uv - dy).x));
 
+    if (gl_FragColor.x == 0.5) p.y = p.x;
+    if (gl_FragColor.x == iResolution.x - 0.5) p.x = p.y;
+    if (gl_FragColor.y == 0.5) p.w = p.z;
+    if (gl_FragColor.y == iResolution.y - 0.5) p.z = p.w;
+
     // apply wave function
     i.y += delta * (-4.0 * i.x + p.x + p.y + p.z + p.w) / 4.0;
 

@@ -98,8 +98,7 @@ class WaterWallpaperService : WallpaperService() {
         private var delta = 0.7f
         private var iBufferDeltaLocation = 0
 
-        private var waterSizeCoefficient = 0.5f
-        private var waterSizeCoefficientSquared = waterSizeCoefficient * waterSizeCoefficient
+        private var waterSizeCoefficient = 0.25f
         private var screenWidth = 0
         private var screenHeight = 0
 
@@ -241,10 +240,9 @@ class WaterWallpaperService : WallpaperService() {
             screenHeight = height
 
             glViewport(0, 0, screenWidth, screenHeight)
+
             glUseProgram(programId)
             glUniform2f(iResolutionLocation, screenWidth.toFloat(), screenHeight.toFloat())
-
-            glViewport(0, 0, (screenWidth * waterSizeCoefficient).toInt(), (screenHeight * waterSizeCoefficient).toInt())
             glUseProgram(bufferProgramId)
             glUniform2f(iBufferResolutionLocation, screenWidth * waterSizeCoefficient, screenHeight * waterSizeCoefficient)
 
@@ -385,7 +383,6 @@ class WaterWallpaperService : WallpaperService() {
 
         private fun render()
         {
-            glViewport(0, 0, screenWidth, screenHeight)
             glUseProgram(programId)
             glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
@@ -424,7 +421,6 @@ class WaterWallpaperService : WallpaperService() {
 
         private fun update()
         {
-            glViewport(0, 0, (screenWidth * waterSizeCoefficient).toInt(), (screenHeight * waterSizeCoefficient).toInt())
             glUseProgram(bufferProgramId)
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[twrite])
 
@@ -436,13 +432,13 @@ class WaterWallpaperService : WallpaperService() {
 
             for (i in 0 until mouseCount)
             {
-                val x = iMouses[i][0] * waterSizeCoefficientSquared
-                val y = iMouses[i][1] * waterSizeCoefficientSquared
+                val x = iMouses[i][0] * waterSizeCoefficient
+                val y = iMouses[i][1] * waterSizeCoefficient
                 val pressed = iMouses[i][2]
                 glUniform3f(iBufferMouseLocations[i], x, y, pressed)
             }
 
-            glUniform1f(iBufferTouchSizeLocation, (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficientSquared)
+            glUniform1f(iBufferTouchSizeLocation, (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficient)
             glUniform1f(iBufferDeltaLocation, delta)
 
             drawQuad(aBufferPositionLocation)
