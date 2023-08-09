@@ -58,7 +58,7 @@ void main()
     i.y *= 1.0 - 0.002 * delta;
 
     // pressure damping
-    i.x *= 0.999;
+    i.x *= 0.99;
 
     float x = i.x;
     float y = i.y;
