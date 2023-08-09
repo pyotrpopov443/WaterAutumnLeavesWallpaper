@@ -66,7 +66,7 @@ class MainActivity: AppCompatActivity() {
     {
         val shaderPreferences = this.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return 3
 
-        val waterSpeed = shaderPreferences.getFloat(getString(R.string.saved_speed), 0.7f)
+        val waterSpeed = shaderPreferences.getFloat(getString(R.string.saved_speed), 1f)
 
         return (waterSpeed * 10 - 7).toInt()
     }

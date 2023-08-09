@@ -98,7 +98,7 @@ class WaterWallpaperService : WallpaperService() {
         private var delta = 0.7f
         private var iBufferDeltaLocation = 0
 
-        private var waterSizeCoefficient = 0.25f
+        private var waterSizeCoefficient = 0.2f
         private var screenWidth = 0
         private var screenHeight = 0
 
