@@ -4,6 +4,11 @@ uniform vec2 iResolution;
 uniform sampler2D iChannel0;
 uniform sampler2D puddle;
 
+uniform sampler2D leaf0;
+uniform vec2 leaf0Position;
+uniform float leaf0Rotation;
+uniform float leaf0Size;
+
 uniform sampler2D leaf1;
 uniform vec2 leaf1Position;
 uniform float leaf1Rotation;
@@ -39,11 +44,6 @@ uniform vec2 leaf7Position;
 uniform float leaf7Rotation;
 uniform float leaf7Size;
 
-uniform sampler2D leaf0;
-uniform vec2 leaf0Position;
-uniform float leaf0Rotation;
-uniform float leaf0Size;
-
 vec4 decode(vec4 vec)
 {
     return vec * vec4(2) - vec4(1);
@@ -78,7 +78,7 @@ vec4 blur(sampler2D tex, vec2 fragCoord)
 
 float cross2d( vec2 a, vec2 b ) { return a.x*b.y - a.y*b.x; }
 
-vec2 invBilinear(vec2 a, vec2 b, vec2 c, vec2 d)
+vec2 quadTexture(vec2 a, vec2 b, vec2 c, vec2 d)
 {
     vec2 e = b-a;
     vec2 f = d-a;
@@ -111,7 +111,7 @@ vec4 leaf(vec4 color, vec2 center, vec2 size, sampler2D tex, float angle)
     c = rotate(c, center, angle);
     d = rotate(d, center, angle);
 
-    vec2 uv = invBilinear(a, b, c, d );
+    vec2 uv = quadTexture(a, b, c, d);
 
     if(max(abs(uv.x-0.5), abs(uv.y-0.5)) < 0.5)
     {
@@ -130,7 +130,6 @@ void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
     vec4 data = blur(iChannel0, gl_FragCoord.xy / 2.0);
-
     gl_FragColor = texture2D(puddle, uv + 0.2 * data.zw);
     vec3 normal = normalize(vec3(-data.z, 0.2, -data.w));
     gl_FragColor += vec4(1) * pow(max(0.0, dot(normal, normalize(vec3(-3, 10, 3)))), 60.0);

@@ -169,22 +169,49 @@ class WaterWallpaperService : WallpaperService() {
 
         private fun onMouseDown(x: Float, y: Float, index: Int)
         {
+            if (index >= mouseCount)
+            {
+                return
+            }
+
             iMouses[index][0] = x
             iMouses[index][1] = screenHeight - y
             iMouses[index][2] = 100f
+
+            moveLeaves(x, y)
         }
 
         private fun onMouseMove(x: Float, y: Float, index: Int)
         {
+            if (index >= mouseCount)
+            {
+                return
+            }
+
             iMouses[index][0] = x
             iMouses[index][1] = screenHeight - y
+
+            moveLeaves(x, y)
         }
 
         private fun onMouseUp(x: Float, y: Float, index: Int)
         {
+            if (index >= mouseCount)
+            {
+                return
+            }
+
             iMouses[index][0] = x
             iMouses[index][1] = screenHeight - y
             iMouses[index][2] = 0f
+        }
+
+        private fun moveLeaves(x: Float, y: Float)
+        {
+            for (leaf in leaves)
+            {
+                leaf.speedUp(x, y)
+            }
         }
 
         override fun onSurfaceCreated(arg0: GL10?, arg1: EGLConfig?) {
@@ -216,6 +243,8 @@ class WaterWallpaperService : WallpaperService() {
             glViewport(0, 0, screenWidth, screenHeight)
             glUseProgram(programId)
             glUniform2f(iResolutionLocation, screenWidth.toFloat(), screenHeight.toFloat())
+
+            glViewport(0, 0, (screenWidth * waterSizeCoefficient).toInt(), (screenHeight * waterSizeCoefficient).toInt())
             glUseProgram(bufferProgramId)
             glUniform2f(iBufferResolutionLocation, screenWidth * waterSizeCoefficient, screenHeight * waterSizeCoefficient)
 
@@ -356,6 +385,7 @@ class WaterWallpaperService : WallpaperService() {
 
         private fun render()
         {
+            glViewport(0, 0, screenWidth, screenHeight)
             glUseProgram(programId)
             glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
@@ -394,6 +424,7 @@ class WaterWallpaperService : WallpaperService() {
 
         private fun update()
         {
+            glViewport(0, 0, (screenWidth * waterSizeCoefficient).toInt(), (screenHeight * waterSizeCoefficient).toInt())
             glUseProgram(bufferProgramId)
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[twrite])
 
