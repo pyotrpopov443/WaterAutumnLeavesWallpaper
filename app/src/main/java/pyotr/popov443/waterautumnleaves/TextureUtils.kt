@@ -1,4 +1,4 @@
-package pyotr.popov443.glviewwallpaper
+package pyotr.popov443.waterautumnleaves
 
 import android.graphics.BitmapFactory
 import android.opengl.GLES30

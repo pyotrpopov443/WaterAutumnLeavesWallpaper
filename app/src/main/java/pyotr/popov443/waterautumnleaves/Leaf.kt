@@ -1,4 +1,4 @@
-package pyotr.popov443.glviewwallpaper
+package pyotr.popov443.waterautumnleaves
 
 import kotlin.math.max
 import kotlin.math.min
