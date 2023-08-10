@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GLViewWallpaper"
+        android:theme="@style/Theme.WaterAutumnLeaves"
         android:fullBackupContent="true">
         <service android:name="pyotr.popov443.waterautumnleaves.WaterWallpaperService"
             android:label="@string/app_name"

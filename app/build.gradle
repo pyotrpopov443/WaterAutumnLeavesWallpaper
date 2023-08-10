@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "pyotr.popov443.glviewwallpaper"
+        applicationId "pyotr.popov443.waterautumnleaves"
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 1

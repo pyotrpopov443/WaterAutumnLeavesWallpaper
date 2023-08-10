@@ -496,6 +496,7 @@ class WaterWallpaperService : WallpaperService() {
             frame = 0
             iMouses = List(10) { floatArrayOf(0f, 0f, 0f) }
             paused = true
+            requestRender()
         }
 
         fun onDestroy() {

@@ -129,7 +129,7 @@ class Leaf(private var texturesCount: Int) {
 
     private fun randomize()
     {
-        scale = randomBetween(0.8f, 1f)
+        scale = randomBetween(0.9f, 1f)
         angle = randomBetween(0f, 360f)
         spinSpeed = randomBetween(-0.4f, 0.4f)
         initXSpeed = randomBetween(-0.2f, 0.2f)
