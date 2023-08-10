@@ -48,7 +48,6 @@ class WaterWallpaperService : WallpaperService() {
 
             if (visible) {
                 waterSurfaceView?.onResume()
-                waterSurfaceView?.requestRender()
             } else {
                 waterSurfaceView?.onPause()
             }
@@ -59,6 +58,7 @@ class WaterWallpaperService : WallpaperService() {
         private var mSurfaceHolder: SurfaceHolder? = null
 
         private var frame = 0
+        private var paused = false
 
         private var vertexData: FloatBuffer? = null
 
@@ -109,7 +109,7 @@ class WaterWallpaperService : WallpaperService() {
         init {
             setEGLContextClientVersion(2)
             setRenderer(this)
-            renderMode = RENDERMODE_CONTINUOUSLY
+            renderMode = RENDERMODE_WHEN_DIRTY
             onPause()
         }
 
@@ -392,6 +392,11 @@ class WaterWallpaperService : WallpaperService() {
         override fun onDrawFrame(arg0: GL10?) {
             update()
             render()
+
+            if (!paused)
+            {
+                requestRender()
+            }
         }
 
         private fun render()
@@ -479,6 +484,17 @@ class WaterWallpaperService : WallpaperService() {
 
         override fun run() {
             Toast.makeText(this@WaterWallpaperService, "Not supported.", Toast.LENGTH_LONG).show()
+        }
+
+        override fun onResume() {
+            paused = false
+            requestRender()
+        }
+
+        override fun onPause() {
+            frame = 0
+            iMouses = List(10) { floatArrayOf(0f, 0f, 0f) }
+            paused = true
         }
 
         fun onDestroy() {
