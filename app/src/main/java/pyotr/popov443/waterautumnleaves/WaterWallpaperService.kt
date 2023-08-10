@@ -487,6 +487,7 @@ class WaterWallpaperService : WallpaperService() {
         }
 
         override fun onResume() {
+            delta = getSavedWaterSpeed()
             paused = false
             requestRender()
         }
