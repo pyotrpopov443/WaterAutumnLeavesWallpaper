@@ -296,7 +296,6 @@ class WaterWallpaperService : WallpaperService() {
                 TextureUtils.loadTexture(context, R.drawable.leaf4),
                 TextureUtils.loadTexture(context, R.drawable.leaf5),
                 TextureUtils.loadTexture(context, R.drawable.leaf6),
-                TextureUtils.loadTexture(context, R.drawable.leaf7),
                 TextureUtils.loadTexture(context, R.drawable.leaf8),
                 TextureUtils.loadTexture(context, R.drawable.leaf9),
                 TextureUtils.loadTexture(context, R.drawable.leaf10),

@@ -17,7 +17,8 @@
         <service android:name="pyotr.popov443.waterautumnleaves.WaterWallpaperService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_WALLPAPER"
-            android:icon="@mipmap/ic_launcher">
+            android:icon="@mipmap/ic_launcher"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
             </intent-filter>
@@ -26,7 +27,8 @@
         </service>
         <activity
             android:name="pyotr.popov443.waterautumnleaves.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
