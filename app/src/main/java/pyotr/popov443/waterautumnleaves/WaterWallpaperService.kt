@@ -16,40 +16,41 @@ import kotlin.math.min
 
 
 class WaterWallpaperService : WallpaperService() {
-    private var mEngine: Engine? = null
+    private var waterWallpaperEngine: Engine? = null
+
     override fun onCreateEngine(): Engine {
-        mEngine = WaterWallpaperEngine()
-        return mEngine!!
+        waterWallpaperEngine = WaterWallpaperEngine()
+        return waterWallpaperEngine!!
     }
 
     inner class WaterWallpaperEngine : Engine() {
 
-        private var mGLSurfaceView: WaterSurfaceView? = null
+        private var waterSurfaceView: WaterSurfaceView? = null
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
-            mGLSurfaceView = WaterSurfaceView()
+            waterSurfaceView = WaterSurfaceView()
             setTouchEventsEnabled(true)
         }
 
         override fun onDestroy() {
             super.onDestroy()
-            mGLSurfaceView?.onDestroy()
-            mGLSurfaceView = null
+            waterSurfaceView?.onDestroy()
+            waterSurfaceView = null
         }
 
         override fun onTouchEvent(motionEvent: MotionEvent) {
-            mGLSurfaceView?.onTouch(motionEvent)
+            waterSurfaceView?.onTouch(motionEvent)
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
 
             if (visible) {
-                mGLSurfaceView?.onResume()
-                mGLSurfaceView?.requestRender()
+                waterSurfaceView?.onResume()
+                waterSurfaceView?.requestRender()
             } else {
-                mGLSurfaceView?.onPause()
+                waterSurfaceView?.onPause()
             }
         }
     }
@@ -114,8 +115,9 @@ class WaterWallpaperService : WallpaperService() {
 
         override fun getHolder(): SurfaceHolder {
             if (mSurfaceHolder == null) {
-                mSurfaceHolder = mEngine!!.surfaceHolder
+                mSurfaceHolder = waterWallpaperEngine!!.surfaceHolder
             }
+
             return mSurfaceHolder!!
         }
 
@@ -230,9 +232,12 @@ class WaterWallpaperService : WallpaperService() {
 
         private fun getSavedWaterSpeed(): Float
         {
-            val shaderPreferences = context.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return 0.7f
+            val shaderPreferences = context.getSharedPreferences(
+                getString(R.string.my_prefs),
+                Context.MODE_PRIVATE
+            ) ?: return 1f
 
-            return shaderPreferences.getFloat(getString(R.string.saved_speed), 0.7f)
+            return shaderPreferences.getFloat(getString(R.string.saved_speed), 1f)
         }
 
         override fun onSurfaceChanged(arg0: GL10?, width: Int, height: Int) {
@@ -244,7 +249,11 @@ class WaterWallpaperService : WallpaperService() {
             glUseProgram(programId)
             glUniform2f(iResolutionLocation, screenWidth.toFloat(), screenHeight.toFloat())
             glUseProgram(bufferProgramId)
-            glUniform2f(iBufferResolutionLocation, screenWidth * waterSizeCoefficient, screenHeight * waterSizeCoefficient)
+            glUniform2f(
+                iBufferResolutionLocation,
+                screenWidth * waterSizeCoefficient,
+                screenHeight * waterSizeCoefficient
+            )
 
             for (i in framebuffers.indices)
             {
@@ -289,6 +298,10 @@ class WaterWallpaperService : WallpaperService() {
                 TextureUtils.loadTexture(context, R.drawable.leaf6),
                 TextureUtils.loadTexture(context, R.drawable.leaf7),
                 TextureUtils.loadTexture(context, R.drawable.leaf8),
+                TextureUtils.loadTexture(context, R.drawable.leaf9),
+                TextureUtils.loadTexture(context, R.drawable.leaf10),
+                TextureUtils.loadTexture(context, R.drawable.leaf11),
+                TextureUtils.loadTexture(context, R.drawable.leaf12),
             )
 
             if (leaves.isEmpty())
@@ -438,7 +451,10 @@ class WaterWallpaperService : WallpaperService() {
                 glUniform3f(iBufferMouseLocations[i], x, y, pressed)
             }
 
-            glUniform1f(iBufferTouchSizeLocation, (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficient)
+            glUniform1f(
+                iBufferTouchSizeLocation,
+                (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficient
+            )
             glUniform1f(iBufferDeltaLocation, delta)
 
             drawQuad(aBufferPositionLocation)

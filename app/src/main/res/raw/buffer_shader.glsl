@@ -29,7 +29,7 @@ vec4 decode(vec4 vec)
 
 void main()
 {
-    if (iFrame == 0 || iFrame == 1) { gl_FragColor = encode(vec4(0)); return; }
+    if (iFrame < 2) { gl_FragColor = encode(vec4(0)); return; }
 
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
     vec2 dx = vec2(1.0, 0.0) / iResolution.xy;

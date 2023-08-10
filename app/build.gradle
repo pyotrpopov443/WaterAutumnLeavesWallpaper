@@ -18,25 +18,15 @@ android {
     }
 
     buildTypes {
-        release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'boolean', 'DEVELOPER_MODE', 'false'
-        }
         debug {
             debuggable true
             minifyEnabled false
             shrinkResources false
-            buildConfigField 'boolean', 'DEVELOPER_MODE', 'true'
         }
-        unsigned {
-            initWith debug
+        release {
             debuggable false
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'boolean', 'DEVELOPER_MODE', 'false'
         }
     }
     compileOptions {

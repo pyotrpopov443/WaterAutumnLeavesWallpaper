@@ -117,7 +117,7 @@ vec4 leaf(vec4 color, vec2 center, vec2 size, sampler2D tex, float angle)
     {
         vec4 leafColor = texture2D( tex, uv );
 
-        if (leafColor.x > 0.07 && leafColor.y > 0.07 && leafColor.z > 0.07)
+        if (leafColor.x > 0.07 || leafColor.y > 0.07 || leafColor.z > 0.07)
         {
             return leafColor;
         }
