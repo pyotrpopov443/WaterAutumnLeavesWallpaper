@@ -87,11 +87,11 @@ class WaterWallpaperService : WallpaperService() {
 
         private var texture = 0
 
-        private var iBufferChannel0Location = 0
+        private var iBufferDataLocation = 0
         private var iChannel0Location = 0
 
-        private var framebuffers = IntArray(2)
-        private var textures = IntArray(2)
+        private var framebuffers = intArrayOf(0, 0)
+        private var textures = intArrayOf(0, 0)
 
         private var tread = 0
         private var twrite = 1
@@ -218,8 +218,6 @@ class WaterWallpaperService : WallpaperService() {
         override fun onSurfaceCreated(arg0: GL10?, arg1: EGLConfig?) {
             glClearColor(0f, 0f, 0f, 1f)
             createProgram()
-            glUseProgram(programId)
-
             createBufferProgram()
 
             getLocations()
@@ -255,35 +253,38 @@ class WaterWallpaperService : WallpaperService() {
                 screenHeight * waterSizeCoefficient
             )
 
-            for (i in framebuffers.indices)
+            if (framebuffers[0] == 0)
             {
-                textures[i] = glCreateTexture()
-                glBindTexture(GL_TEXTURE_2D, textures[i])
-                glTexImage2D(
-                    GL_TEXTURE_2D,
-                    0,
-                    GL_RGBA16F,
-                    (screenWidth * waterSizeCoefficient).toInt(),
-                    (screenHeight * waterSizeCoefficient).toInt(),
-                    0,
-                    GL_RGBA,
-                    GL_FLOAT,
-                    null
-                )
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+                for (i in framebuffers.indices)
+                {
+                    textures[i] = glCreateTexture()
+                    glBindTexture(GL_TEXTURE_2D, textures[i])
+                    glTexImage2D(
+                            GL_TEXTURE_2D,
+                            0,
+                            GL_RGBA16F,
+                            (screenWidth * waterSizeCoefficient).toInt(),
+                            (screenHeight * waterSizeCoefficient).toInt(),
+                            0,
+                            GL_RGBA,
+                            GL_FLOAT,
+                            null
+                    )
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
-                framebuffers[i] = glCreateFramebuffer()
-                glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i])
-                glFramebufferTexture2D(
-                    GL_FRAMEBUFFER,
-                    GL_COLOR_ATTACHMENT0,
-                    GL_TEXTURE_2D,
-                    textures[i],
-                    0
-                )
+                    framebuffers[i] = glCreateFramebuffer()
+                    glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i])
+                    glFramebufferTexture2D(
+                            GL_FRAMEBUFFER,
+                            GL_COLOR_ATTACHMENT0,
+                            GL_TEXTURE_2D,
+                            textures[i],
+                            0
+                    )
+                }
             }
 
             glUseProgram(programId)
@@ -375,7 +376,7 @@ class WaterWallpaperService : WallpaperService() {
             iResolutionLocation = glGetUniformLocation(programId, "iResolution")
 
             aBufferPositionLocation = glGetAttribLocation(bufferProgramId, "pos")
-            iBufferChannel0Location = glGetUniformLocation(bufferProgramId, "iChannel0")
+            iBufferDataLocation = glGetUniformLocation(bufferProgramId, "data")
             iBufferFrameLocation = glGetUniformLocation(bufferProgramId, "iFrame")
 
             for (i in 0 until mouseCount)
@@ -443,7 +444,7 @@ class WaterWallpaperService : WallpaperService() {
 
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, framebuffers[tread])
-            glUniform1i(iBufferChannel0Location, 0)
+            glUniform1i(iBufferDataLocation, 0)
 
             glUniform1i(iBufferFrameLocation, frame++)
 

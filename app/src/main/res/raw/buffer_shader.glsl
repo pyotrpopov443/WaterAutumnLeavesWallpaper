@@ -13,7 +13,7 @@ uniform vec3 iMouse9;
 uniform float iMouseSize;
 uniform vec2 iResolution;
 uniform int iFrame;
-uniform sampler2D iChannel0;
+uniform sampler2D data;
 
 uniform float delta;
 
@@ -36,9 +36,9 @@ void main()
     vec2 dy = vec2(0.0, 1.0) / iResolution.xy;
 
     // x - pressure. y - velocity
-    vec2 i = decode(texture2D(iChannel0, uv)).xy;
+    vec2 i = decode(texture2D(data, uv)).xy;
     // x - right. y - left. z - up. w - down
-    vec4 p = decode(vec4(texture2D(iChannel0, uv + dx).x, texture2D(iChannel0, uv - dx).x, texture2D(iChannel0, uv + dy).x, texture2D(iChannel0, uv - dy).x));
+    vec4 p = decode(vec4(texture2D(data, uv + dx).x, texture2D(data, uv - dx).x, texture2D(data, uv + dy).x, texture2D(data, uv - dy).x));
 
     if (gl_FragColor.x == 0.5) p.y = p.x;
     if (gl_FragColor.x == iResolution.x - 0.5) p.x = p.y;
