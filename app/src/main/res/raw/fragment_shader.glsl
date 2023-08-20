@@ -72,7 +72,7 @@ vec4 blur(sampler2D tex, vec2 fragCoord)
     vec4 N6 = decode(texture2D(tex, uv + Circle(Start, 9.0, 6.0) * Scale));
     vec4 N7 = decode(texture2D(tex, uv));
 
-    return (N0+N1+N2+N3+N4+N5+N6+N7) / 9.0;
+    return (N0+N1+N2+N3+N4+N5+N6+N7) / 14.0;
 }
 
 

@@ -99,6 +99,7 @@ class WaterWallpaperService : WallpaperService() {
         private var delta = 0.7f
         private var iBufferDeltaLocation = 0
 
+        private var savedOptimization = 0.2f
         private var waterSizeCoefficient = 0.2f
         private var screenWidth = 0
         private var screenHeight = 0
@@ -226,6 +227,8 @@ class WaterWallpaperService : WallpaperService() {
             frame = 0
             iMouses = List(10) { floatArrayOf(0f, 0f, 0f) }
             delta = getSavedWaterSpeed()
+            savedOptimization = getSavedOptimization()
+            waterSizeCoefficient = savedOptimization
         }
 
         private fun getSavedWaterSpeed(): Float
@@ -236,6 +239,16 @@ class WaterWallpaperService : WallpaperService() {
             ) ?: return 1f
 
             return shaderPreferences.getFloat(getString(R.string.saved_speed), 1f)
+        }
+
+        private fun getSavedOptimization(): Float
+        {
+            val shaderPreferences = application.getSharedPreferences(
+                getString(R.string.my_prefs),
+                Context.MODE_PRIVATE
+            ) ?: return 0.2f
+
+            return shaderPreferences.getFloat(getString(R.string.saved_optimization), 0.2f)
         }
 
         override fun onSurfaceChanged(arg0: GL10?, width: Int, height: Int) {
@@ -257,34 +270,38 @@ class WaterWallpaperService : WallpaperService() {
             {
                 for (i in framebuffers.indices)
                 {
-                    textures[i] = glCreateTexture()
-                    glBindTexture(GL_TEXTURE_2D, textures[i])
-                    glTexImage2D(
-                            GL_TEXTURE_2D,
-                            0,
-                            GL_RGBA16F,
-                            (screenWidth * waterSizeCoefficient).toInt(),
-                            (screenHeight * waterSizeCoefficient).toInt(),
-                            0,
-                            GL_RGBA,
-                            GL_FLOAT,
-                            null
-                    )
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-
                     framebuffers[i] = glCreateFramebuffer()
-                    glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i])
-                    glFramebufferTexture2D(
-                            GL_FRAMEBUFFER,
-                            GL_COLOR_ATTACHMENT0,
-                            GL_TEXTURE_2D,
-                            textures[i],
-                            0
-                    )
                 }
+            }
+
+            for (i in framebuffers.indices)
+            {
+                textures[i] = glCreateTexture()
+                glBindTexture(GL_TEXTURE_2D, textures[i])
+                glTexImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    GL_RGBA16F,
+                    (screenWidth * waterSizeCoefficient).toInt(),
+                    (screenHeight * waterSizeCoefficient).toInt(),
+                    0,
+                    GL_RGBA,
+                    GL_FLOAT,
+                    null
+                )
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+
+                glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i])
+                glFramebufferTexture2D(
+                    GL_FRAMEBUFFER,
+                    GL_COLOR_ATTACHMENT0,
+                    GL_TEXTURE_2D,
+                    textures[i],
+                    0
+                )
             }
 
             glUseProgram(programId)
@@ -297,11 +314,10 @@ class WaterWallpaperService : WallpaperService() {
                 TextureUtils.loadTexture(context, R.drawable.leaf4),
                 TextureUtils.loadTexture(context, R.drawable.leaf5),
                 TextureUtils.loadTexture(context, R.drawable.leaf6),
+                TextureUtils.loadTexture(context, R.drawable.leaf7),
                 TextureUtils.loadTexture(context, R.drawable.leaf8),
                 TextureUtils.loadTexture(context, R.drawable.leaf9),
                 TextureUtils.loadTexture(context, R.drawable.leaf10),
-                TextureUtils.loadTexture(context, R.drawable.leaf11),
-                TextureUtils.loadTexture(context, R.drawable.leaf12),
             )
 
             if (leaves.isEmpty())
@@ -460,7 +476,7 @@ class WaterWallpaperService : WallpaperService() {
                 iBufferTouchSizeLocation,
                 (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficient
             )
-            glUniform1f(iBufferDeltaLocation, delta)
+            glUniform1f(iBufferDeltaLocation, delta * waterSizeCoefficient / 0.2f)
 
             drawQuad(aBufferPositionLocation)
 
@@ -487,12 +503,24 @@ class WaterWallpaperService : WallpaperService() {
         }
 
         override fun onResume() {
+            if (savedOptimization != waterSizeCoefficient)
+            {
+                waterSizeCoefficient = savedOptimization
+                super.onResume()
+            }
+
             delta = getSavedWaterSpeed()
             paused = false
             requestRender()
         }
 
         override fun onPause() {
+            savedOptimization = getSavedOptimization()
+            if (savedOptimization != waterSizeCoefficient)
+            {
+                super.onPause()
+            }
+
             frame = 0
             iMouses = List(10) { floatArrayOf(0f, 0f, 0f) }
             paused = true

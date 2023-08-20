@@ -6,4 +6,6 @@
     <string name="set_wallpaper">Установить обои</string>
     <string name="water_speed">Скорость воды</string>
     <string name="saved_speed">saved_speed</string>
+    <string name="optimization">Оптимизация</string>
+    <string name="saved_optimization">saved_optimization</string>
 </resources>
