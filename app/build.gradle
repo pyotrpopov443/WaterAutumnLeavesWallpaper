@@ -11,8 +11,8 @@ android {
         applicationId "pyotr.popov443.waterautumnleaves"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 5
-        versionName "ice-latte"
+        versionCode 6
+        versionName "waterautumnleaves"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

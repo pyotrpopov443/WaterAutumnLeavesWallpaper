@@ -15,46 +15,56 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.math.min
 
 
-class WaterWallpaperService : WallpaperService() {
+class WaterWallpaperService : WallpaperService()
+{
     private var waterWallpaperEngine: Engine? = null
 
-    override fun onCreateEngine(): Engine {
+    override fun onCreateEngine(): Engine
+    {
         waterWallpaperEngine = WaterWallpaperEngine()
         return waterWallpaperEngine!!
     }
 
-    inner class WaterWallpaperEngine : Engine() {
-
+    inner class WaterWallpaperEngine : Engine()
+    {
         private var waterSurfaceView: WaterSurfaceView? = null
 
-        override fun onCreate(surfaceHolder: SurfaceHolder) {
+        override fun onCreate(surfaceHolder: SurfaceHolder)
+        {
             super.onCreate(surfaceHolder)
             waterSurfaceView = WaterSurfaceView()
             setTouchEventsEnabled(true)
         }
 
-        override fun onDestroy() {
+        override fun onDestroy()
+        {
             super.onDestroy()
             waterSurfaceView?.onDestroy()
             waterSurfaceView = null
         }
 
-        override fun onTouchEvent(motionEvent: MotionEvent) {
+        override fun onTouchEvent(motionEvent: MotionEvent)
+        {
             waterSurfaceView?.onTouch(motionEvent)
         }
 
-        override fun onVisibilityChanged(visible: Boolean) {
+        override fun onVisibilityChanged(visible: Boolean)
+        {
             super.onVisibilityChanged(visible)
 
-            if (visible) {
+            if (visible)
+            {
                 waterSurfaceView?.onResume()
-            } else {
+            }
+            else
+            {
                 waterSurfaceView?.onPause()
             }
         }
     }
 
-    inner class WaterSurfaceView : GLSurfaceView(this@WaterWallpaperService), GLSurfaceView.Renderer, Runnable {
+    inner class WaterSurfaceView : GLSurfaceView(this@WaterWallpaperService), GLSurfaceView.Renderer, Runnable
+    {
         private var mSurfaceHolder: SurfaceHolder? = null
 
         private var frame = 0
@@ -96,25 +106,26 @@ class WaterWallpaperService : WallpaperService() {
         private var tread = 0
         private var twrite = 1
 
-        private var delta = 0.7f
+        private var delta = 1f
         private var iBufferDeltaLocation = 0
 
-        private var savedOptimization = 0.2f
         private var waterSizeCoefficient = 0.2f
-        private var screenWidth = 0
-        private var screenHeight = 0
+        private var screenWidth = 0f
+        private var screenHeight = 0f
 
         private var leaves = listOf<Leaf>()
         private var leavesTextures = listOf<Int>()
 
-        init {
+        init
+        {
             setEGLContextClientVersion(2)
             setRenderer(this)
             renderMode = RENDERMODE_WHEN_DIRTY
             onPause()
         }
 
-        override fun getHolder(): SurfaceHolder {
+        override fun getHolder(): SurfaceHolder
+        {
             if (mSurfaceHolder == null) {
                 mSurfaceHolder = waterWallpaperEngine!!.surfaceHolder
             }
@@ -122,55 +133,27 @@ class WaterWallpaperService : WallpaperService() {
             return mSurfaceHolder!!
         }
 
-        fun onTouch(event: MotionEvent?) {
-            if (event == null)
-            {
-                return
-            }
-
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    val x = event.getX(event.actionIndex)
-                    val y = event.getY(event.actionIndex)
-                    val pointerId = event.getPointerId(event.actionIndex)
-
-                    onMouseDown(x, y, pointerId)
-                }
-                MotionEvent.ACTION_POINTER_DOWN -> {
-                    val x = event.getX(event.actionIndex)
-                    val y = event.getY(event.actionIndex)
-                    val pointerId = event.getPointerId(event.actionIndex)
-
-                    onMouseDown(x, y, pointerId)
-                }
+        fun onTouch(event: MotionEvent?)
+        {
+            when (event?.actionMasked) {
+                MotionEvent.ACTION_DOWN -> onMouseDown(event)
+                MotionEvent.ACTION_POINTER_DOWN -> onMouseDown(event)
                 MotionEvent.ACTION_MOVE -> {
                     for (actionIndex in 0 until event.pointerCount) {
-                        val x = event.getX(actionIndex)
-                        val y = event.getY(actionIndex)
-                        val pointerId = event.getPointerId(actionIndex)
-
-                        onMouseMove(x, y, pointerId)
+                        onMouseMove(event, actionIndex)
                     }
                 }
-                MotionEvent.ACTION_POINTER_UP -> {
-                    val x = event.getX(event.actionIndex)
-                    val y = event.getY(event.actionIndex)
-                    val pointerId = event.getPointerId(event.actionIndex)
-
-                    onMouseUp(x, y, pointerId)
-                }
-                MotionEvent.ACTION_UP -> {
-                    val x = event.getX(event.actionIndex)
-                    val y = event.getY(event.actionIndex)
-                    val pointerId = event.getPointerId(event.actionIndex)
-
-                    onMouseUp(x, y, pointerId)
-                }
+                MotionEvent.ACTION_POINTER_UP -> onMouseUp(event)
+                MotionEvent.ACTION_UP -> onMouseUp(event)
             }
         }
 
-        private fun onMouseDown(x: Float, y: Float, index: Int)
+        private fun onMouseDown(event: MotionEvent)
         {
+            val x = event.getX(event.actionIndex)
+            val y = event.getY(event.actionIndex)
+            val index = event.getPointerId(event.actionIndex)
+
             if (index >= mouseCount)
             {
                 return
@@ -179,12 +162,15 @@ class WaterWallpaperService : WallpaperService() {
             iMouses[index][0] = x
             iMouses[index][1] = screenHeight - y
             iMouses[index][2] = 100f
-
             moveLeaves(x, y)
         }
 
-        private fun onMouseMove(x: Float, y: Float, index: Int)
+        private fun onMouseMove(event: MotionEvent, actionIndex: Int)
         {
+            val x = event.getX(actionIndex)
+            val y = event.getY(actionIndex)
+            val index = event.getPointerId(actionIndex)
+
             if (index >= mouseCount)
             {
                 return
@@ -192,12 +178,15 @@ class WaterWallpaperService : WallpaperService() {
 
             iMouses[index][0] = x
             iMouses[index][1] = screenHeight - y
-
             moveLeaves(x, y)
         }
 
-        private fun onMouseUp(x: Float, y: Float, index: Int)
+        private fun onMouseUp(event: MotionEvent)
         {
+            val x = event.getX(event.actionIndex)
+            val y = event.getY(event.actionIndex)
+            val index = event.getPointerId(event.actionIndex)
+
             if (index >= mouseCount)
             {
                 return
@@ -216,7 +205,8 @@ class WaterWallpaperService : WallpaperService() {
             }
         }
 
-        override fun onSurfaceCreated(arg0: GL10?, arg1: EGLConfig?) {
+        override fun onSurfaceCreated(arg0: GL10?, arg1: EGLConfig?)
+        {
             glClearColor(0f, 0f, 0f, 1f)
             createProgram()
             createBufferProgram()
@@ -226,99 +216,59 @@ class WaterWallpaperService : WallpaperService() {
 
             frame = 0
             iMouses = List(10) { floatArrayOf(0f, 0f, 0f) }
-            delta = getSavedWaterSpeed()
-            savedOptimization = getSavedOptimization()
-            waterSizeCoefficient = savedOptimization
+            delta = getPref(getString(R.string.saved_speed), 1f)
+            waterSizeCoefficient = getPref(getString(R.string.saved_optimization), 0.2f)
         }
 
-        private fun getSavedWaterSpeed(): Float
+        override fun onSurfaceChanged(arg0: GL10?, width: Int, height: Int)
         {
-            val shaderPreferences = context.getSharedPreferences(
-                getString(R.string.my_prefs),
-                Context.MODE_PRIVATE
-            ) ?: return 1f
+            screenWidth = width.toFloat()
+            screenHeight = height.toFloat()
 
-            return shaderPreferences.getFloat(getString(R.string.saved_speed), 1f)
-        }
-
-        private fun getSavedOptimization(): Float
-        {
-            val shaderPreferences = application.getSharedPreferences(
-                getString(R.string.my_prefs),
-                Context.MODE_PRIVATE
-            ) ?: return 0.2f
-
-            return shaderPreferences.getFloat(getString(R.string.saved_optimization), 0.2f)
-        }
-
-        override fun onSurfaceChanged(arg0: GL10?, width: Int, height: Int) {
-            screenWidth = width
-            screenHeight = height
-
-            glViewport(0, 0, screenWidth, screenHeight)
+            glViewport(0, 0, width, height)
 
             glUseProgram(programId)
-            glUniform2f(iResolutionLocation, screenWidth.toFloat(), screenHeight.toFloat())
+            glUniform2f(iResolutionLocation, screenWidth, screenHeight)
             glUseProgram(bufferProgramId)
-            glUniform2f(
-                iBufferResolutionLocation,
-                screenWidth * waterSizeCoefficient,
-                screenHeight * waterSizeCoefficient
-            )
+            glUniform2f(iBufferResolutionLocation, screenWidth * waterSizeCoefficient, screenHeight * waterSizeCoefficient)
 
             if (framebuffers[0] == 0)
             {
                 for (i in framebuffers.indices)
                 {
+                    textures[i] = glCreateTexture()
+                    glBindTexture(GL_TEXTURE_2D, textures[i])
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, (screenWidth * waterSizeCoefficient).toInt(), (screenHeight * waterSizeCoefficient).toInt(), 0, GL_RGBA, GL_FLOAT, null)
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+
                     framebuffers[i] = glCreateFramebuffer()
+                    glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i])
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures[i], 0)
                 }
-            }
-
-            for (i in framebuffers.indices)
-            {
-                textures[i] = glCreateTexture()
-                glBindTexture(GL_TEXTURE_2D, textures[i])
-                glTexImage2D(
-                    GL_TEXTURE_2D,
-                    0,
-                    GL_RGBA16F,
-                    (screenWidth * waterSizeCoefficient).toInt(),
-                    (screenHeight * waterSizeCoefficient).toInt(),
-                    0,
-                    GL_RGBA,
-                    GL_FLOAT,
-                    null
-                )
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-
-                glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[i])
-                glFramebufferTexture2D(
-                    GL_FRAMEBUFFER,
-                    GL_COLOR_ATTACHMENT0,
-                    GL_TEXTURE_2D,
-                    textures[i],
-                    0
-                )
             }
 
             glUseProgram(programId)
             glBindFramebuffer(GL_FRAMEBUFFER, 0)
-            texture = TextureUtils.loadTexture(context, R.drawable.puddle)
-            leavesTextures = listOf(
-                TextureUtils.loadTexture(context, R.drawable.leaf1),
-                TextureUtils.loadTexture(context, R.drawable.leaf2),
-                TextureUtils.loadTexture(context, R.drawable.leaf3),
-                TextureUtils.loadTexture(context, R.drawable.leaf4),
-                TextureUtils.loadTexture(context, R.drawable.leaf5),
-                TextureUtils.loadTexture(context, R.drawable.leaf6),
-                TextureUtils.loadTexture(context, R.drawable.leaf7),
-                TextureUtils.loadTexture(context, R.drawable.leaf8),
-                TextureUtils.loadTexture(context, R.drawable.leaf9),
-                TextureUtils.loadTexture(context, R.drawable.leaf10),
-            )
+
+            if (leavesTextures.isEmpty())
+            {
+                texture = TextureUtils.loadTexture(context, R.drawable.puddle)
+                leavesTextures = listOf(
+                        TextureUtils.loadTexture(context, R.drawable.leaf1),
+                        TextureUtils.loadTexture(context, R.drawable.leaf2),
+                        TextureUtils.loadTexture(context, R.drawable.leaf3),
+                        TextureUtils.loadTexture(context, R.drawable.leaf4),
+                        TextureUtils.loadTexture(context, R.drawable.leaf5),
+                        TextureUtils.loadTexture(context, R.drawable.leaf6),
+                        TextureUtils.loadTexture(context, R.drawable.leaf7),
+                        TextureUtils.loadTexture(context, R.drawable.leaf8),
+                        TextureUtils.loadTexture(context, R.drawable.leaf9),
+                        TextureUtils.loadTexture(context, R.drawable.leaf10),
+                )
+            }
 
             if (leaves.isEmpty())
             {
@@ -340,7 +290,8 @@ class WaterWallpaperService : WallpaperService() {
             return frameBufferIds[0]
         }
 
-        private fun prepareData() {
+        private fun prepareData()
+        {
             val vertices = floatArrayOf(-1f, 1f, -1f, -1f, 1f, 1f, 1f, -1f)
             vertexData = ByteBuffer
                     .allocateDirect(vertices.size * 4)
@@ -349,35 +300,22 @@ class WaterWallpaperService : WallpaperService() {
             vertexData!!.put(vertices)
         }
 
-        private fun createProgram() {
-            val vertexShaderId = ShaderUtils.createShader(
-                context,
-                GL_VERTEX_SHADER,
-                R.raw.vertex_shader
-            )
-            val fragmentShaderId = ShaderUtils.createShader(
-                context,
-                GL_FRAGMENT_SHADER,
-                R.raw.fragment_shader
-            )
+        private fun createProgram()
+        {
+            val vertexShaderId = ShaderUtils.createShader(context, GL_VERTEX_SHADER, R.raw.vertex_shader)
+            val fragmentShaderId = ShaderUtils.createShader(context, GL_FRAGMENT_SHADER, R.raw.fragment_shader)
             programId = ShaderUtils.createProgram(vertexShaderId, fragmentShaderId)
         }
 
-        private fun createBufferProgram() {
-            val vertexShaderId = ShaderUtils.createShader(
-                context,
-                GL_VERTEX_SHADER,
-                R.raw.vertex_shader
-            )
-            val fragmentShaderId = ShaderUtils.createShader(
-                context,
-                GL_FRAGMENT_SHADER,
-                R.raw.buffer_shader
-            )
+        private fun createBufferProgram()
+        {
+            val vertexShaderId = ShaderUtils.createShader(context, GL_VERTEX_SHADER, R.raw.vertex_shader)
+            val fragmentShaderId = ShaderUtils.createShader(context, GL_FRAGMENT_SHADER, R.raw.buffer_shader)
             bufferProgramId = ShaderUtils.createProgram(vertexShaderId, fragmentShaderId)
         }
 
-        private fun getLocations() {
+        private fun getLocations()
+        {
             for (i in 0 until leavesCount)
             {
                 leavesLocations[i] = glGetUniformLocation(programId, "leaf${i}")
@@ -405,7 +343,8 @@ class WaterWallpaperService : WallpaperService() {
             iBufferDeltaLocation = glGetUniformLocation(bufferProgramId, "delta")
         }
 
-        override fun onDrawFrame(arg0: GL10?) {
+        override fun onDrawFrame(arg0: GL10?)
+        {
             update()
             render()
 
@@ -428,19 +367,10 @@ class WaterWallpaperService : WallpaperService() {
             glBindTexture(GL_TEXTURE_2D, textures[0])
             glUniform1i(iChannel0Location, 1)
 
-            val activeTextures = intArrayOf(
-                GL_TEXTURE2,
-                GL_TEXTURE3,
-                GL_TEXTURE4,
-                GL_TEXTURE5,
-                GL_TEXTURE6,
-                GL_TEXTURE7,
-                GL_TEXTURE8,
-                GL_TEXTURE9,
-            )
+            val activeTextures = intArrayOf(GL_TEXTURE2, GL_TEXTURE3, GL_TEXTURE4, GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9)
             for (i in 0 until leavesCount)
             {
-                leaves[i].update(screenWidth.toFloat(), screenHeight.toFloat())
+                leaves[i].update(screenWidth, screenHeight)
 
                 glActiveTexture(activeTextures[i])
                 glBindTexture(GL_TEXTURE_2D, leavesTextures[leaves[i].texture])
@@ -472,10 +402,7 @@ class WaterWallpaperService : WallpaperService() {
                 glUniform3f(iBufferMouseLocations[i], x, y, pressed)
             }
 
-            glUniform1f(
-                iBufferTouchSizeLocation,
-                (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficient
-            )
+            glUniform1f(iBufferTouchSizeLocation, (min(screenWidth, screenHeight) / 26f) * waterSizeCoefficient)
             glUniform1f(iBufferDeltaLocation, delta * waterSizeCoefficient / 0.2f)
 
             drawQuad(aBufferPositionLocation)
@@ -494,40 +421,37 @@ class WaterWallpaperService : WallpaperService() {
             vertexData!!.position(0)
             glVertexAttribPointer(positionLocation, 2, GL_FLOAT, false, 0, vertexData)
             glEnableVertexAttribArray(positionLocation)
-
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
         }
 
-        override fun run() {
+        override fun run()
+        {
             Toast.makeText(this@WaterWallpaperService, "Not supported.", Toast.LENGTH_LONG).show()
         }
 
-        override fun onResume() {
-            if (savedOptimization != waterSizeCoefficient)
-            {
-                waterSizeCoefficient = savedOptimization
-                super.onResume()
-            }
-
-            delta = getSavedWaterSpeed()
+        override fun onResume()
+        {
+            delta = getPref(getString(R.string.saved_speed), 1f)
             paused = false
             requestRender()
         }
 
-        override fun onPause() {
-            savedOptimization = getSavedOptimization()
-            if (savedOptimization != waterSizeCoefficient)
-            {
-                super.onPause()
-            }
-
+        override fun onPause()
+        {
             frame = 0
             iMouses = List(10) { floatArrayOf(0f, 0f, 0f) }
             paused = true
             requestRender()
         }
 
-        fun onDestroy() {
+        private fun getPref(name: String, default: Float): Float
+        {
+            val prefs = context.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return default
+            return prefs.getFloat(name, default)
+        }
+
+        fun onDestroy()
+        {
             super.onDetachedFromWindow()
         }
     }

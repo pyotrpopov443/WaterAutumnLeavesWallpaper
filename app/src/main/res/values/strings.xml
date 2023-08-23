@@ -2,9 +2,10 @@
     <string name="app_name">Water Autumn Leaves</string>
     <string name="wallpaper_description">Water With Autumn Leaves Zen Live Wallpaper</string>
     <string name="my_prefs">my_prefs</string>
-    <string name="water_speed">Water Speed</string>
+    <string name="water_speed">Water Velocity</string>
     <string name="saved_speed">saved_speed</string>
     <string name="set_wallpaper">Set Wallpaper</string>
     <string name="optimization">Optimization</string>
     <string name="saved_optimization">saved_optimization</string>
+    <string name="optimization_warning">When you change the optimization, do not forget to restart your device</string>
 </resources>

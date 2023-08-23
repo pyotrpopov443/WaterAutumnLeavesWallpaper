@@ -12,8 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.roundToInt
 
 
-class MainActivity: AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+class MainActivity: AppCompatActivity()
+{
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -33,18 +35,22 @@ class MainActivity: AppCompatActivity() {
 
     private fun initSpeedSetting()
     {
+        val minSpeed = 0.7f
+        val maxSpeed = 1.4f
         val waterSpeedSeekBar = findViewById<SeekBar>(R.id.waterSpeedSeekBar)
+        val maxProgress = waterSpeedSeekBar.max.toFloat()
         val waterSpeedText = findViewById<TextView>(R.id.waterSpeedText)
-        waterSpeedSeekBar.progress = getWaterSpeedProgress()
 
-        waterSpeedText.text = getWaterSpeed(waterSpeedSeekBar).toString()
+        val speed = getPref(getString(R.string.saved_speed), 1f)
+        waterSpeedSeekBar.progress = map(speed, minSpeed, maxSpeed, 0f, maxProgress).toInt()
+        waterSpeedText.text = speed.toString()
 
         waterSpeedSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                val waterSpeed = getWaterSpeed(waterSpeedSeekBar)
-
-                saveWaterSpeed(waterSpeed)
-                waterSpeedText.text = waterSpeed.toString()
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean)
+            {
+                val value = map(waterSpeedSeekBar.progress.toFloat(), 0f, maxProgress, minSpeed, maxSpeed)
+                savePref(getString(R.string.saved_speed), value)
+                waterSpeedText.text = value.toString()
             }
 
             override fun onStartTrackingTouch(p0: SeekBar?) {}
@@ -57,16 +63,17 @@ class MainActivity: AppCompatActivity() {
     {
         val optimizationSeekBar = findViewById<SeekBar>(R.id.optimizationSeekBar)
         val optimizationText = findViewById<TextView>(R.id.optimizationText)
-        optimizationSeekBar.progress = getOptimizationProgress()
 
-        optimizationText.text = progressToPercent(optimizationSeekBar.progress)
+        val optimization = getPref(getString(R.string.saved_optimization), 0.2f)
+        optimizationSeekBar.progress = optimizationToProgress(optimization)
+        optimizationText.text = "${optimizationSeekBar.progress * 100}%"
 
         optimizationSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                val optimization = getOptimization(optimizationSeekBar)
-
-                saveOptimization(optimization)
-                optimizationText.text = progressToPercent(optimizationSeekBar.progress)
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean)
+            {
+                val value = progressToOptimization(optimizationSeekBar.progress)
+                savePref(getString(R.string.saved_optimization), value)
+                optimizationText.text = "${optimizationSeekBar.progress * 100}%"
             }
 
             override fun onStartTrackingTouch(p0: SeekBar?) {}
@@ -75,60 +82,51 @@ class MainActivity: AppCompatActivity() {
         })
     }
 
-    private fun progressToPercent(progress: Int): String
+    private fun optimizationToProgress(optimization: Float): Int
     {
-        return "${progress * 20}%"
+        return when(optimization)
+        {
+            0.2f -> 0
+            0.1f -> 1
+            0.05f -> 2
+            else -> 0
+        }
     }
 
-    private fun saveWaterSpeed(waterSpeed: Float)
+    private fun progressToOptimization(progress: Int): Float
     {
-        val shaderPreferences = this.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return
+        return when(progress)
+        {
+            0 -> 0.2f
+            1 -> 0.1f
+            2 -> 0.05f
+            else -> 0.2f
+        }
+    }
 
+    private fun savePref(name: String, value: Float)
+    {
+        val shaderPreferences = prefs() ?: return
         with(shaderPreferences.edit())
         {
-            putFloat(getString(R.string.saved_speed), waterSpeed)
+            putFloat(name, value)
             apply()
         }
     }
 
-    private fun saveOptimization(optimization: Float)
+    private fun getPref(name: String, default: Float): Float
     {
-        val shaderPreferences = this.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return
-
-        with(shaderPreferences.edit())
-        {
-            putFloat(getString(R.string.saved_optimization), optimization)
-            apply()
-        }
+        val shaderPreferences = prefs() ?: return default
+        return shaderPreferences.getFloat(name, default)
     }
 
-    private fun getWaterSpeed(waterSpeedSeekBar: SeekBar): Float
+    private fun prefs() = this.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE)
+
+    private fun map(value: Float, inMin: Float, inMax: Float, outMin: Float, outMax: Float): Float
     {
-        return (waterSpeedSeekBar.progress + 7) / 10f
+        val valueScaled = (value - inMin) / (inMax - inMin)
+        return round2f(outMin + (valueScaled * (outMax - outMin)))
     }
 
-    private fun getOptimization(optimizationSeekBar: SeekBar): Float
-    {
-        val optimization = 0.2f - optimizationSeekBar.progress * 0.02f
-
-        return (optimization * 100f).roundToInt() / 100f
-    }
-
-    private fun getWaterSpeedProgress(): Int
-    {
-        val shaderPreferences = this.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return 3
-
-        val waterSpeed = shaderPreferences.getFloat(getString(R.string.saved_speed), 1f)
-
-        return (waterSpeed * 10 - 7).toInt()
-    }
-
-    private fun getOptimizationProgress(): Int
-    {
-        val shaderPreferences = this.getSharedPreferences(getString(R.string.my_prefs), Context.MODE_PRIVATE) ?: return 0
-
-        val optimization = shaderPreferences.getFloat(getString(R.string.saved_optimization), 0.2f)
-
-        return (10 - optimization * 50).toInt()
-    }
+    private fun round2f(value: Float) = (value * 100f).roundToInt() / 100f
 }

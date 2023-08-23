@@ -75,7 +75,6 @@ vec4 blur(sampler2D tex, vec2 fragCoord)
     return (N0+N1+N2+N3+N4+N5+N6+N7) / 14.0;
 }
 
-
 float cross2d( vec2 a, vec2 b ) { return a.x*b.y - a.y*b.x; }
 
 vec2 quadTexture(vec2 a, vec2 b, vec2 c, vec2 d)

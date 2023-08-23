@@ -8,4 +8,5 @@
     <string name="saved_speed">saved_speed</string>
     <string name="optimization">Оптимизация</string>
     <string name="saved_optimization">saved_optimization</string>
+    <string name="optimization_warning">При изменении оптимизации не забудьте перезагрузить Ваше устройство</string>
 </resources>
